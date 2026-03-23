@@ -240,6 +240,9 @@ export async function buildTelegramInboundContextPayload(params: {
       contextMedia.length > 0
         ? (contextMedia.map((m) => m.contentType).filter(Boolean) as string[])
         : undefined,
+    MediaFileId: contextMedia.length > 0 ? contextMedia[0]?.fileId : undefined,
+    MediaFileIds:
+      contextMedia.length > 0 ? contextMedia.map((m) => m.fileId).filter(Boolean) : undefined,
     Sticker: allMedia[0]?.stickerMetadata,
     StickerMediaIncluded: allMedia[0]?.stickerMetadata ? !stickerCacheHit : undefined,
     ...(locationData ? toLocationContext(locationData) : undefined),

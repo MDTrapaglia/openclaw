@@ -392,10 +392,12 @@ export const registerTelegramHandlers = ({
           continue;
         }
         if (media) {
+          const fileId = resolveInboundMediaFileId(ctx.message);
           allMedia.push({
             path: media.path,
             contentType: media.contentType,
             stickerMetadata: media.stickerMetadata,
+            fileId,
           });
         }
       }
@@ -498,6 +500,7 @@ export const registerTelegramHandlers = ({
           path: media.path,
           contentType: media.contentType,
           stickerMetadata: media.stickerMetadata,
+          fileId: replyFileId,
         },
       ];
     } catch (err) {
@@ -1043,12 +1046,14 @@ export const registerTelegramHandlers = ({
       return;
     }
 
+    const fileId = resolveInboundMediaFileId(msg);
     const allMedia = media
       ? [
           {
             path: media.path,
             contentType: media.contentType,
             stickerMetadata: media.stickerMetadata,
+            fileId,
           },
         ]
       : [];
