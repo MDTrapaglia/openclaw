@@ -23,6 +23,10 @@ import { resolveInboundLastRouteSessionKey } from "openclaw/plugin-sdk/routing";
 import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
 import { resolvePinnedMainDmOwnerFromAllowlist } from "openclaw/plugin-sdk/security-runtime";
 import { normalizeAllowFrom } from "./bot-access.js";
+import {
+  resolveInboundMediaFileId,
+  resolveInboundMediaFileUniqueId,
+} from "./bot-handlers.media.js";
 import type {
   TelegramMediaRef,
   TelegramMessageContextOptions,
@@ -240,9 +244,23 @@ export async function buildTelegramInboundContextPayload(params: {
       contextMedia.length > 0
         ? (contextMedia.map((m) => m.contentType).filter(Boolean) as string[])
         : undefined,
-    MediaFileId: contextMedia.length > 0 ? contextMedia[0]?.fileId : undefined,
+    MediaFileId: contextMedia.length > 0 ? contextMedia[0]?.fileId : resolveInboundMediaFileId(msg),
     MediaFileIds:
-      contextMedia.length > 0 ? contextMedia.map((m) => m.fileId).filter(Boolean) : undefined,
+      contextMedia.length > 0
+        ? contextMedia.map((m) => m.fileId).filter(Boolean)
+        : resolveInboundMediaFileId(msg)
+          ? [resolveInboundMediaFileId(msg)]
+          : undefined,
+    MediaFileUniqueId:
+      contextMedia.length > 0
+        ? contextMedia[0]?.fileUniqueId
+        : resolveInboundMediaFileUniqueId(msg),
+    MediaFileUniqueIds:
+      contextMedia.length > 0
+        ? contextMedia.map((m) => m.fileUniqueId).filter(Boolean)
+        : resolveInboundMediaFileUniqueId(msg)
+          ? [resolveInboundMediaFileUniqueId(msg)]
+          : undefined,
     Sticker: allMedia[0]?.stickerMetadata,
     StickerMediaIncluded: allMedia[0]?.stickerMetadata ? !stickerCacheHit : undefined,
     ...(locationData ? toLocationContext(locationData) : undefined),
@@ -252,6 +270,14 @@ export async function buildTelegramInboundContextPayload(params: {
     OriginatingChannel: "telegram" as const,
     OriginatingTo: `telegram:${chatId}`,
   });
+
+  if (shouldLogVerbose()) {
+    logVerbose(
+      `telegram: ctx media ids fileId=${ctxPayload.MediaFileId ?? "none"} fileUniqueId=${
+        ctxPayload.MediaFileUniqueId ?? "none"
+      }`,
+    );
+  }
 
   const pinnedMainDmOwner = !isGroup
     ? resolvePinnedMainDmOwnerFromAllowlist({
