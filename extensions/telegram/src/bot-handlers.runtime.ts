@@ -49,6 +49,7 @@ import {
   isMediaSizeLimitError,
   isRecoverableMediaGroupError,
   resolveInboundMediaFileId,
+  resolveInboundMediaFileUniqueId,
 } from "./bot-handlers.media.js";
 import type { TelegramMediaRef } from "./bot-message-context.js";
 import { RegisterTelegramHandlerParams } from "./bot-native-commands.js";
@@ -393,11 +394,13 @@ export const registerTelegramHandlers = ({
         }
         if (media) {
           const fileId = resolveInboundMediaFileId(ctx.message);
+          const fileUniqueId = resolveInboundMediaFileUniqueId(ctx.message);
           allMedia.push({
             path: media.path,
             contentType: media.contentType,
             stickerMetadata: media.stickerMetadata,
             fileId,
+            fileUniqueId,
           });
         }
       }
@@ -477,6 +480,7 @@ export const registerTelegramHandlers = ({
       return [];
     }
     const replyFileId = resolveInboundMediaFileId(replyMessage);
+    const replyFileUniqueId = resolveInboundMediaFileUniqueId(replyMessage);
     if (!replyFileId) {
       return [];
     }
@@ -501,6 +505,7 @@ export const registerTelegramHandlers = ({
           contentType: media.contentType,
           stickerMetadata: media.stickerMetadata,
           fileId: replyFileId,
+          fileUniqueId: replyFileUniqueId,
         },
       ];
     } catch (err) {
@@ -1047,6 +1052,7 @@ export const registerTelegramHandlers = ({
     }
 
     const fileId = resolveInboundMediaFileId(msg);
+    const fileUniqueId = resolveInboundMediaFileUniqueId(msg);
     const allMedia = media
       ? [
           {
@@ -1054,6 +1060,7 @@ export const registerTelegramHandlers = ({
             contentType: media.contentType,
             stickerMetadata: media.stickerMetadata,
             fileId,
+            fileUniqueId,
           },
         ]
       : [];
