@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import {
   findModelInCatalog,
   loadModelCatalog,
@@ -168,6 +169,10 @@ export async function resolveTelegramInboundBody(params: {
 
   let bodyText = rawBody;
   const hasAudio = allMedia.some((media) => media.contentType?.startsWith("audio/"));
+  const ignoreAudioFlag = "/home/mtrapaglia/projects/pinza/whisper.cpp/telegram_ignore_audio.flag";
+  if (hasAudio && fs.existsSync(ignoreAudioFlag)) {
+    return null;
+  }
   const disableAudioPreflight =
     (topicConfig?.disableAudioPreflight ??
       (groupConfig as TelegramGroupConfig | undefined)?.disableAudioPreflight) === true;
