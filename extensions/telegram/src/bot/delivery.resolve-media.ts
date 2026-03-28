@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { GrammyError } from "grammy";
 import { formatErrorMessage } from "openclaw/plugin-sdk/infra-runtime";
@@ -11,7 +12,7 @@ import {
   type TelegramTransport,
 } from "../fetch.js";
 import { cacheSticker, getCachedSticker } from "../sticker-cache.js";
-import { resolveTelegramMediaPlaceholder } from "./helpers.js";
+import { resolveTelegramForumThreadId, resolveTelegramMediaPlaceholder } from "./helpers.js";
 import type { StickerMetadata, TelegramContext } from "./types.js";
 
 const FILE_TOO_BIG_RE = /file is too big/i;
@@ -78,6 +79,38 @@ function resolveTelegramFileName(msg: TelegramContext["message"]): string | unde
     msg.video?.file_name ??
     msg.animation?.file_name
   );
+}
+
+function writeInboundMediaSidecar(params: { mediaPath: string; ctx: TelegramContext }) {
+  try {
+    const msg = params.ctx.message;
+    const chat = msg.chat;
+    const chatId = chat?.id;
+    if (!chatId) {
+      return;
+    }
+    const isGroup = chat.type === "group" || chat.type === "supergroup";
+    const isForum = Boolean(chat.is_forum);
+    let threadId: number | undefined;
+    if (isGroup) {
+      threadId = resolveTelegramForumThreadId({
+        isForum,
+        messageThreadId: msg.message_thread_id ?? null,
+      });
+    } else if (msg.message_thread_id != null) {
+      threadId = msg.message_thread_id;
+    }
+    const sidecarPath = `${params.mediaPath}.meta.json`;
+    const payload = {
+      chat_id: String(chatId),
+      thread_id: threadId != null ? String(threadId) : "",
+      is_forum: isForum,
+      chat_type: chat.type,
+    };
+    fs.writeFileSync(sidecarPath, JSON.stringify(payload));
+  } catch (err) {
+    logVerbose(`telegram: failed to write media sidecar: ${String(err)}`);
+  }
 }
 
 async function resolveTelegramFileWithRetry(
@@ -312,6 +345,7 @@ export async function resolveMedia(
     telegramFileName: resolveTelegramFileName(msg),
     apiRoot,
   });
+  writeInboundMediaSidecar({ mediaPath: saved.path, ctx });
   const placeholder = resolveTelegramMediaPlaceholder(msg) ?? "<media:document>";
   return { path: saved.path, contentType: saved.contentType, placeholder };
 }
