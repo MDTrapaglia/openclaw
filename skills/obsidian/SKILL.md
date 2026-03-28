@@ -33,6 +33,13 @@ Vault structure (typical)
 - Canvases: `*.canvas` (JSON)
 - Attachments: whatever folder you chose in Obsidian settings (images/PDFs/etc.)
 
+## Autonomía de vault/tag + confirmación
+
+- Elegir el vault y el tag **sin preguntar** al usuario.
+- Priorizar `obsidian-cli print-default --path-only`. Si no existe default ni config, usar `/home/mtrapaglia/Documents/Obsidian` y crear `Inbox/`.
+- Elegir tag por criterio propio (si es recordatorio espiritual, usar `#recordar-espiritual`).
+- Siempre responder con la transcripción literal de lo guardado: "Guardé la nota: <texto> en <vault/ruta> con tag <tag>".
+
 ## Find the active vault(s)
 
 Obsidian desktop tracks vaults here (source of truth):
