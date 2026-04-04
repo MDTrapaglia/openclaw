@@ -312,6 +312,8 @@ export const FIELD_HELP: Record<string, string> = {
     "Absolute tool allowlist that replaces profile-derived defaults for strict environments. Use this only when you intentionally run a tightly curated subset of tool capabilities.",
   "tools.deny":
     "Global tool denylist that blocks listed tools even when profile or provider rules would allow them. Use deny rules for emergency lockouts and long-term defense-in-depth.",
+  "tools.echoToRequester":
+    "Echo tool invocations (name + args only) back to the requesting chat. Useful for audit/debug visibility without returning tool output.",
   "tools.web":
     "Web-tool policy grouping for search/fetch providers, limits, and fallback behavior tuning. Keep enabled settings aligned with API key availability and outbound networking policy.",
   "tools.exec":
