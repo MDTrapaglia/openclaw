@@ -464,6 +464,8 @@ export type ToolsConfig = {
   /** Additional allowlist entries merged into allow and/or profile allowlist. */
   alsoAllow?: string[];
   deny?: string[];
+  /** Echo tool calls (name + args) to the requesting chat. */
+  echoToRequester?: boolean;
   /** Optional tool policy overrides keyed by provider id or "provider/model". */
   byProvider?: Record<string, ToolPolicyConfig>;
   web?: {

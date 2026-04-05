@@ -408,7 +408,10 @@ export async function runAgentTurnWithFallback(params: {
                     const name = typeof evt.data.name === "string" ? evt.data.name : undefined;
                     if (phase === "start" || phase === "update") {
                       await params.typingSignals.signalToolStart();
-                      await params.opts?.onToolStart?.({ name, phase });
+                      const toolCallId =
+                        typeof evt.data.toolCallId === "string" ? evt.data.toolCallId : undefined;
+                      const args = evt.data?.args;
+                      await params.opts?.onToolStart?.({ name, phase, toolCallId, args });
                     }
                   }
                   // Track auto-compaction and notify higher layers.

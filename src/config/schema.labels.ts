@@ -133,6 +133,7 @@ export const FIELD_LABELS: Record<string, string> = {
   tools: "Tools",
   "tools.allow": "Tool Allowlist",
   "tools.deny": "Tool Denylist",
+  "tools.echoToRequester": "Echo Tool Calls to Requester",
   "tools.web": "Web Tools",
   "tools.exec": "Exec Tool",
   "tools.media.image.enabled": "Enable Image Understanding",

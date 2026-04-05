@@ -38,3 +38,15 @@ export function resolveInboundMediaFileId(msg: Message): string | undefined {
     msg.voice?.file_id
   );
 }
+
+export function resolveInboundMediaFileUniqueId(msg: Message): string | undefined {
+  return (
+    msg.sticker?.file_unique_id ??
+    msg.photo?.[msg.photo.length - 1]?.file_unique_id ??
+    msg.video?.file_unique_id ??
+    msg.video_note?.file_unique_id ??
+    msg.document?.file_unique_id ??
+    msg.audio?.file_unique_id ??
+    msg.voice?.file_unique_id
+  );
+}

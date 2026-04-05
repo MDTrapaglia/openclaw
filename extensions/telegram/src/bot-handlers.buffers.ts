@@ -10,6 +10,7 @@ import {
   hasInboundMedia,
   isRecoverableMediaGroupError,
   resolveInboundMediaFileId,
+  resolveInboundMediaFileUniqueId,
 } from "./bot-handlers.media.js";
 import type { TelegramMediaRef } from "./bot-message-context.js";
 import { MEDIA_GROUP_TIMEOUT_MS, type MediaGroupEntry } from "./bot-updates.js";
@@ -158,6 +159,7 @@ export function createTelegramInboundBufferRuntime(params: {
       return [];
     }
     const replyFileId = resolveInboundMediaFileId(replyMessage);
+    const replyFileUniqueId = resolveInboundMediaFileUniqueId(replyMessage);
     if (!replyFileId) {
       return [];
     }
@@ -180,6 +182,8 @@ export function createTelegramInboundBufferRuntime(params: {
           path: media.path,
           contentType: media.contentType,
           stickerMetadata: media.stickerMetadata,
+          fileId: replyFileId,
+          fileUniqueId: replyFileUniqueId,
         },
       ];
     } catch (err) {

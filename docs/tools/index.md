@@ -93,6 +93,19 @@ config. Deny always wins over allow.
 }
 ```
 
+### Tool call echo
+
+Enable `tools.echoToRequester` to emit a short “tool + args” notice in the same
+chat that triggered the tool call (no tool output).
+
+```json5
+{
+  tools: {
+    echoToRequester: true,
+  },
+}
+```
+
 ### Tool profiles
 
 `tools.profile` sets a base allowlist before `allow`/`deny` is applied.

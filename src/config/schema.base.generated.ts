@@ -5032,6 +5032,9 @@ export const GENERATED_BASE_CONFIG_SCHEMA = {
               additionalProperties: false,
             },
           },
+          echoToRequester: {
+            type: "boolean",
+          },
           web: {
             type: "object",
             properties: {
@@ -12428,6 +12431,11 @@ export const GENERATED_BASE_CONFIG_SCHEMA = {
       label: "Tool Denylist",
       help: "Global tool denylist that blocks listed tools even when profile or provider rules would allow them. Use deny rules for emergency lockouts and long-term defense-in-depth.",
       tags: ["access", "tools"],
+    },
+    "tools.echoToRequester": {
+      label: "Echo Tool Calls to Requester",
+      help: "Echo tool invocations (name + args only) back to the requesting chat. Useful for audit/debug visibility without returning tool output.",
+      tags: ["tools"],
     },
     "tools.web": {
       label: "Web Tools",

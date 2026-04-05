@@ -44,6 +44,7 @@ import type { FinalizedMsgContext } from "../templating.js";
 import type { BlockReplyContext, GetReplyOptions, ReplyPayload } from "../types.js";
 import { shouldSkipDuplicateInbound } from "./inbound-dedupe.js";
 import type { ReplyDispatcher, ReplyDispatchKind } from "./reply-dispatcher.js";
+import { formatToolEchoText } from "./tool-echo.js";
 import { resolveRunTypingPolicy } from "./typing-policy.js";
 
 let routeReplyRuntimePromise: Promise<typeof import("./route-reply.runtime.js")> | null = null;
@@ -265,6 +266,7 @@ export async function dispatchReplyFromConfig(params: {
   const shouldSuppressTyping =
     shouldRouteToOriginating || originatingChannel === INTERNAL_MESSAGE_CHANNEL;
   const ttsChannel = shouldRouteToOriginating ? originatingChannel : currentSurface;
+  const shouldEchoToolCalls = cfg.tools?.echoToRequester === true;
 
   /**
    * Helper to send a payload via route-reply (async).
@@ -552,12 +554,16 @@ export async function dispatchReplyFromConfig(params: {
       if (shouldSendToolSummaries) {
         return payload;
       }
-      const execApproval =
+      const channelData =
         payload.channelData &&
         typeof payload.channelData === "object" &&
         !Array.isArray(payload.channelData)
-          ? payload.channelData.execApproval
+          ? payload.channelData
           : undefined;
+      if (channelData?.toolEcho === true) {
+        return payload;
+      }
+      const execApproval = channelData?.execApproval;
       if (execApproval && typeof execApproval === "object" && !Array.isArray(execApproval)) {
         return payload;
       }
@@ -568,6 +574,13 @@ export async function dispatchReplyFromConfig(params: {
         return null;
       }
       return { ...payload, text: undefined };
+    };
+    const sendToolEchoPayload = async (payload: ReplyPayload): Promise<void> => {
+      if (shouldRouteToOriginating) {
+        await sendPayloadAsync(payload, undefined, false);
+      } else {
+        dispatcher.sendToolResult(payload);
+      }
     };
     const typing = resolveRunTypingPolicy({
       requestedPolicy: params.replyOptions?.typingPolicy,
@@ -584,6 +597,22 @@ export async function dispatchReplyFromConfig(params: {
         ...params.replyOptions,
         typingPolicy: typing.typingPolicy,
         suppressTyping: typing.suppressTyping,
+        onToolStart: (payload) => {
+          if (!shouldEchoToolCalls) {
+            return;
+          }
+          if (payload.phase !== "start") {
+            return;
+          }
+          const text = formatToolEchoText(payload.name, payload.args);
+          const echoPayload: ReplyPayload = {
+            text,
+            channelData: {
+              toolEcho: true,
+            },
+          };
+          return sendToolEchoPayload(echoPayload);
+        },
         onToolResult: (payload: ReplyPayload) => {
           const run = async () => {
             const ttsPayload = await maybeApplyTtsToPayload({
