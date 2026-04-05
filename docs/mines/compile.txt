@@ -1,0 +1,2 @@
+ cd /home/mtrapaglia/openclaw
+ pnpm build
