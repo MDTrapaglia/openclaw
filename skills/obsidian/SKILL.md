@@ -37,7 +37,9 @@ Vault structure (typical)
 
 - Elegir el vault y el tag **sin preguntar** al usuario.
 - Priorizar `obsidian-cli print-default --path-only`. Si no existe default ni config, usar `/home/mtrapaglia/Documents/Obsidian` y crear `Inbox/`.
-- Elegir tag por criterio propio (si es recordatorio espiritual, usar `#recordar-espiritual`).
+- **Tareas/ToDo:** cuando el usuario pida agregar algo al ToDo o una tarea, crear **una nota por tarea** dentro de `Todo list/`.
+- **Notas generales/ideas:** usar `Inbox/`.
+- Elegir tag por criterio propio (si es recordatorio espiritual, usar `#recordar-espiritual`). Para tareas usar `#todo`.
 - Siempre responder con la transcripción literal de lo guardado: "Guardé la nota: <texto> en <vault/ruta> con tag <tag>".
 
 ## Find the active vault(s)
